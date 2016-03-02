@@ -32,12 +32,20 @@ data.filled.by.date <- group_by(data.filled, date)
 sum.by.date <- summarise(data.filled.by.date, daily.sum=sum(steps))
 hist(sum.by.date$daily.sum)
 
-data.filled.sorted <- data.filled[order(as.numeric(as.character(data.filled$interval))),]
-data.filled.sorted$date <- as.Date(data.filled$date)
-data.filled.sorted$day <- weekdays(data.filled.sorted$date)
-data.filled.sorted$weekday <- ifelse(data.filled.sorted$day == "Sunday", FALSE, 
-                                     ifelse(data.filled.sorted$day == "Saturday", FALSE, TRUE))
 
-data.filled.by.interval.weekday <- group_by(data.filled.sorted, interval,weekday)
+#data.filled.sorted <- data.filled[order(as.numeric(as.character(data.filled$interval))),]
+data.filled$date <- as.Date(data.filled$date)
+data.filled$day <- weekdays(data.filled$date)
+data.filled$day <- ifelse(data.filled$day == "Sunday", "weekend", 
+                                     ifelse(data.filled$day == "Saturday", "weekend", "weekday"))
+data.filled$day <- as.factor(data.filled$day)
 
+data.filled$interval <- as.numeric(as.character(data.filled$interval))
+data.filled.sorted <- data.filled[order(data.filled$interval),]
 
+data.filled.by.int.day <- group_by(data.filled.sorted, interval, day)
+data.sum.by.int.day <- summarise(data.filled.by.int.day, mean.steps = mean(steps))
+
+library(lattice)
+xyplot(mean.steps ~ interval | day, data = data.sum.by.int.day, layout=c(1,2), 
+       type="l", ylab = "steps", main="Mean Steps by Interval")

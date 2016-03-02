@@ -98,3 +98,42 @@ hist(sum.by.date$daily.sum, main="Histogram of Daily Total Steps (missing data f
 ![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+1. change date column's type to Date and find the day of week for each day, then assign "weekend" or "weekday" to the day column. Finally make day column as factor
+
+
+```r
+data.filled$date <- as.Date(data.filled$date)
+data.filled$day <- weekdays(data.filled$date)
+data.filled$day <- ifelse(data.filled$day == "Sunday", "weekend", 
+                                     ifelse(data.filled$day == "Saturday", "weekend", "weekday"))
+data.filled$day <- as.factor(data.filled$day)
+```
+
+2. sort the dataset by interval
+3. group the sorted dataset by interval and day, then compute the mean for each group
+
+
+```r
+data.filled$interval <- as.numeric(as.character(data.filled$interval))
+data.filled.sorted <- data.filled[order(data.filled$interval),]
+
+data.filled.by.int.day <- group_by(data.filled.sorted, interval, day)
+data.sum.by.int.day <- summarise(data.filled.by.int.day, mean.steps = mean(steps))
+```
+
+4. plot them in two panel(weekday, weekend) using lattice
+
+
+```r
+library(lattice)
+```
+
+
+```r
+xyplot(mean.steps ~ interval | day, data = data.sum.by.int.day, layout=c(1,2), 
+       type="l", ylab = "steps", main="Mean Steps by Interval")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)
+
