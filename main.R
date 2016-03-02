@@ -32,4 +32,12 @@ data.filled.by.date <- group_by(data.filled, date)
 sum.by.date <- summarise(data.filled.by.date, daily.sum=sum(steps))
 hist(sum.by.date$daily.sum)
 
+data.filled.sorted <- data.filled[order(as.numeric(as.character(data.filled$interval))),]
+data.filled.sorted$date <- as.Date(data.filled$date)
+data.filled.sorted$day <- weekdays(data.filled.sorted$date)
+data.filled.sorted$weekday <- ifelse(data.filled.sorted$day == "Sunday", FALSE, 
+                                     ifelse(data.filled.sorted$day == "Saturday", FALSE, TRUE))
+
+data.filled.by.interval.weekday <- group_by(data.filled.sorted, interval,weekday)
+
 
